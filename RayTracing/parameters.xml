@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<parameters>
+    <modelFileName>./Models/ex_02___skybox_with_direction_labels.model</modelFileName>
+    <saveImagePath>./</saveImagePath>
+    <depthOfRayTracing>6</depthOfRayTracing>
+    <exercise>EX_1_0_Colors_one_color</exercise>
+</parameters>

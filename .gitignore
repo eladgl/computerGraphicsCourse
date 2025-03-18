@@ -1,0 +1,54 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Directory for built binaries
+bin/
+out/
+
+# Avoid all workspace-specific files
+.metadata/
+*.tmp
+*.bak
+*.swp
+local.properties
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+*.iws
+
+# Eclipse files
+.classpath
+.project
+.settings/
+
+# VS Code files
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Ignore specific package bin directories if they exist
+Rasterization/bin/
+RayTracing/bin/
