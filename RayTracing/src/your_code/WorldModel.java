@@ -1,6 +1,7 @@
 package your_code;
 
 import java.util.List;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.joml.Matrix3f;
@@ -12,6 +13,8 @@ import app_interface.ModelLight;
 import app_interface.ModelMaterial;
 import app_interface.ModelSphere;
 import app_interface.SphereTexture;
+
+import java.util.Random;
 
 //class holding the world model and render it
 public class WorldModel {
@@ -81,16 +84,34 @@ public class WorldModel {
 			return new Vector3f(0);
 		else if (exercise == ExerciseEnum.EX_1_0_Colors_one_color) {
 
-			return new Vector3f(0);			
+			//return new Vector3f(255,0,0); //red
+			//return new Vector3f(255,255,0); //yellow
+			//return new Vector3f(255,255,255); //white
+			return new Vector3f(0.8f,0.8f,0.8f); //grey
 		} else if (exercise == ExerciseEnum.EX_1_1_Colors_Random_color) {
-
-			return new Vector3f(0);			
+			Random rand = new Random();
+			float r = rand.nextFloat(256)/255;
+			float g = rand.nextFloat(256)/255;
+			float b = rand.nextFloat(256)/255;
+			return new Vector3f(r, g, b);			
 		} else if (exercise == ExerciseEnum.EX_1_2_Colors_Color_space) {
-
-			return new Vector3f(0);			
-		} else if (exercise == ExerciseEnum.EX_1_3_Colors_linear) {
+			System.out.println(-1f/(this.imageWidth-1));
+			Matrix3f m = new Matrix3f(-1.0f/(this.imageWidth-1), -1.0f/(this.imageHeight-1), 1.0f,
+										1.0f/(this.imageWidth-1), 0.0f, 0.0f,
+										0.0f, 1.0f/(this.imageHeight-1), 0.0f).transpose();
 			
-			return new Vector3f(0);			
+			return m.transform(new Vector3f(x,y, 1f));			
+		} else if (exercise == ExerciseEnum.EX_1_3_Colors_linear) {
+			Vector3f c1 = new Vector3f(1.0f,0.0f,0.0f);
+			Vector3f c2 = new Vector3f(0.0f,1.0f,0.0f);
+			float c1Coeff =  (this.imageWidth - 1 - (float)x) / (this.imageWidth - 1);
+			float c2Coeff =  (float)x / (this.imageWidth - 1);
+			if(x == 0)
+				return c1;
+			else if(x == this.imageWidth-1)
+				return c2;
+			else
+				return new Vector3f(c1.mul(c1Coeff).add(c2.mul(c2Coeff)));			
 		} else {
 
 			return new Vector3f(0);			
