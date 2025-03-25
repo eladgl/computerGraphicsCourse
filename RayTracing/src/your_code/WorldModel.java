@@ -1,3 +1,5 @@
+//אלעד גולדנברג 315040519 //
+//318400165 דביר חייט //
 package your_code;
 
 import java.util.List;
@@ -113,8 +115,9 @@ public class WorldModel {
 			else
 				return new Vector3f(c1.mul(c1Coeff).add(c2.mul(c2Coeff)));			
 		} else {
-
-			return new Vector3f(0);			
+			Vector3f direction = calcPixelDirection(x, y, this.imageWidth, this.imageHeight, this.model.fovXdegree);
+			Vector3f color = rayTracing(new Vector3f(0,0,0), direction, model, skyBoxImageSphereTexture, 0);
+			return new Vector3f(color);			
 		}
 	}
 
@@ -128,7 +131,7 @@ public class WorldModel {
 	private static Vector3f rayTracing(Vector3f incidentRayOrigin, Vector3f incidentRayDirection, Model model,
 			SphereTexture skyBoxImageSphereTexture, int depthLevel) {
 
-		Vector3f returnedColor = new Vector3f();
+		Vector3f returnedColor = new Vector3f(skyBoxImageSphereTexture.sampleDirectionFromMiddle(incidentRayDirection));
 		
 		return returnedColor;
 	}
@@ -142,8 +145,26 @@ public class WorldModel {
 	 * @param fovXdegree The horizontal field of view in degrees.
 	 * @return The normalized direction vector of the ray for the given pixel. */	
 	static Vector3f calcPixelDirection(int x, int y, int imageWidth, int imageHeight, float fovXdegree) {
-
-		return new Vector3f(0);
+		float fovX = fovXdegree * (float)Math.PI / 180;
+		float fovY = (fovX / (float) imageWidth) * imageHeight; 
+		
+		float xLeft = -(float)Math.tan(fovX / 2);
+		float yBottom = -(float)Math.tan(fovY / 2);
+		
+		float lengthX = 2*(float)Math.tan(fovX / 2);
+		float lengthY = 2*(float)Math.tan(fovY / 2);
+		
+		int winSizeInPixelsX = imageWidth;
+		int winSizeInPixelsY = imageHeight;
+		
+		float xDelta = lengthX/(winSizeInPixelsX - 1);
+		float yDelta = lengthY/(winSizeInPixelsY - 1);
+		
+		float xCoeff = xLeft + x * xDelta;
+		float yCoeff = yBottom + y * yDelta;
+		
+		
+		return new Vector3f(xCoeff, yCoeff, -1).normalize();
 	}
 
 	/** Calculates the intersection(s) between a ray and a sphere.
