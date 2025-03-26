@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <parameters>
-    <modelFileName>.\Models\ex_02___skybox_with_direction_labels.model</modelFileName>
+    <modelFileName>.\Models\ex_03_1_OneSphere_simpleColor.model</modelFileName>
     <saveImagePath>./</saveImagePath>
-    <depthOfRayTracing>10</depthOfRayTracing>
-    <exercise>EX_2___Rays_calculation</exercise>
+    <depthOfRayTracing>1</depthOfRayTracing>
+    <exercise>EX_3_2_Intersection_One_sphere_with_color</exercise>
 </parameters>

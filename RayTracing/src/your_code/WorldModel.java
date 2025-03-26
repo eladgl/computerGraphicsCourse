@@ -97,25 +97,24 @@ public class WorldModel {
 			float b = rand.nextFloat(256)/255;
 			return new Vector3f(r, g, b);			
 		} else if (exercise == ExerciseEnum.EX_1_2_Colors_Color_space) {
-			System.out.println(-1f/(this.imageWidth-1));
-			Matrix3f m = new Matrix3f(-1.0f/(this.imageWidth-1), -1.0f/(this.imageHeight-1), 1.0f,
-										1.0f/(this.imageWidth-1), 0.0f, 0.0f,
-										0.0f, 1.0f/(this.imageHeight-1), 0.0f).transpose();
+			Matrix3f m = new Matrix3f(-1.0f/(imageWidth-1), -1.0f/(imageHeight-1), 1.0f,
+										1.0f/(imageWidth-1), 0.0f, 0.0f,
+										0.0f, 1.0f/(imageHeight-1), 0.0f).transpose();
 			
 			return m.transform(new Vector3f(x,y, 1f));			
 		} else if (exercise == ExerciseEnum.EX_1_3_Colors_linear) {
 			Vector3f c1 = new Vector3f(1.0f,0.0f,0.0f);
 			Vector3f c2 = new Vector3f(0.0f,1.0f,0.0f);
-			float c1Coeff =  (this.imageWidth - 1 - (float)x) / (this.imageWidth - 1);
-			float c2Coeff =  (float)x / (this.imageWidth - 1);
+			float c1Coeff =  (imageWidth - 1 - (float)x) / (imageWidth - 1);
+			float c2Coeff =  (float)x / (imageWidth - 1);
 			if(x == 0)
 				return c1;
-			else if(x == this.imageWidth-1)
+			else if(x == imageWidth-1)
 				return c2;
 			else
 				return new Vector3f(c1.mul(c1Coeff).add(c2.mul(c2Coeff)));			
 		} else {
-			Vector3f direction = calcPixelDirection(x, y, this.imageWidth, this.imageHeight, this.model.fovXdegree);
+			Vector3f direction = calcPixelDirection(x, y, imageWidth, imageHeight, model.fovXdegree);
 			Vector3f color = rayTracing(new Vector3f(0,0,0), direction, model, skyBoxImageSphereTexture, 0);
 			return new Vector3f(color);			
 		}
@@ -130,10 +129,25 @@ public class WorldModel {
 	 * @return The calculated color for the pixel based on ray tracing and lighting effects. */	
 	private static Vector3f rayTracing(Vector3f incidentRayOrigin, Vector3f incidentRayDirection, Model model,
 			SphereTexture skyBoxImageSphereTexture, int depthLevel) {
-
-		Vector3f returnedColor = new Vector3f(skyBoxImageSphereTexture.sampleDirectionFromMiddle(incidentRayDirection));
 		
-		return returnedColor;
+		IntersectionResults intersectionResults = rayIntersection(incidentRayOrigin, incidentRayDirection, model.spheres);
+		Vector3f returnedColor = new Vector3f(skyBoxImageSphereTexture.sampleDirectionFromMiddle(incidentRayDirection));
+
+		if(intersectionResults == null)
+			return returnedColor;
+		
+		ModelSphere intersectedSphere = intersectionResults.intersectedSphere;	
+		ModelMaterial intersectedSphereMaterial = model.materials.get(intersectedSphere.materialIndex);
+		Vector3f intersectionPoint = intersectionResults.intersectionPoint;
+		Vector3f intersectionNormal = intersectionResults.normal;
+		boolean intersectionFromOutsideOfSphere = intersectionResults.rayFromOutsideOfSphere;
+		SphereTexture intersectedSphereTexture = model.skyBoxImageSphereTextures.get(intersectedSphere.textureIndex);
+		
+		Vector3f color = intersectedSphereMaterial.color;
+		float kColor = intersectedSphereMaterial.kColor;
+		Vector3f intersectedColor = new Vector3f(color).mul(kColor);
+		
+		return new Vector3f(intersectedColor);
 	}
 
 	
@@ -229,8 +243,20 @@ public class WorldModel {
 	 *         or an empty IntersectionResults object if no intersection occurs. */	
 	private static IntersectionResults rayIntersection(Vector3f rayStart, Vector3f rayDirection,
 			List<ModelSphere> spheres) {
-
-		return null;
+		IntersectionResults closestIntersectionResult = null;
+		float closestZ = Float.MAX_VALUE;
+		for(ModelSphere sphere : spheres) {
+			IntersectionResults intersectionResult = rayIntersection(rayStart, rayDirection, sphere);
+			
+			if (intersectionResult != null) {
+				float z = -1 * intersectionResult.intersectionPoint.z;
+				if( z < closestZ) {
+					closestZ = z;
+					closestIntersectionResult = intersectionResult;
+				}
+			}
+		}
+		return closestIntersectionResult;
 	}
 
 	
