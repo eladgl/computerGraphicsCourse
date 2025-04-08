@@ -136,18 +136,33 @@ public class WorldModel {
 		if(intersectionResults == null)
 			return returnedColor;
 		
-		ModelSphere intersectedSphere = intersectionResults.intersectedSphere;	
-		ModelMaterial intersectedSphereMaterial = model.materials.get(intersectedSphere.materialIndex);
+		ModelSphere intersectedSphere = intersectionResults.intersectedSphere;
+		int materialIndex = intersectedSphere.materialIndex;
+		int textureIndex = intersectedSphere.textureIndex;
+		ModelMaterial intersectedSphereMaterial = model.materials.get(materialIndex);
 		Vector3f intersectionPoint = intersectionResults.intersectionPoint;
 		Vector3f intersectionNormal = intersectionResults.normal;
 		boolean intersectionFromOutsideOfSphere = intersectionResults.rayFromOutsideOfSphere;
-		SphereTexture intersectedSphereTexture = model.skyBoxImageSphereTextures.get(intersectedSphere.textureIndex);
+		SphereTexture intersectedSphereTexture = model.skyBoxImageSphereTextures.get(textureIndex);
+		
 		
 		Vector3f color = intersectedSphereMaterial.color;
 		float kColor = intersectedSphereMaterial.kColor;
-		Vector3f intersectedColor = new Vector3f(color).mul(kColor);
+		returnedColor = new Vector3f(color).mul(kColor);
+		ModelLight light = model.lights.get(0);
+		Vector3f location = new Vector3f(light.location);
+		Vector3f kd = new Vector3f(intersectedSphereMaterial.kd);
+		Vector3f ks = new Vector3f(intersectedSphereMaterial.ks);
+		Vector3f ka = new Vector3f(intersectedSphereMaterial.ka);
+		float shininess = intersectedSphereMaterial.shininess;
+		float kTexture = intersectedSphereMaterial.kTexture;
+		Vector3f sphereCenter = intersectedSphere.center;
+		Vector3f newK_diffuse = calcKdCombinedWithTexture(intersectionPoint, sphereCenter, intersectedSphereTexture, kd, kTexture);
+		Vector3f diffusedColor = lightingEquation(intersectionPoint, intersectionNormal, location, newK_diffuse, ks, ka, shininess);
 		
-		return new Vector3f(intersectedColor);
+		
+		
+		return new Vector3f(returnedColor.add(diffusedColor));
 	}
 
 	
@@ -261,8 +276,8 @@ public class WorldModel {
 
 	
 	/** Calculates the lighting at a specific point.
-	 * @param point The Eye space position of the point.
-	 * @param pointNormal The normal vector at the point.
+	 * @param point The point on the sphere
+	 * @param pointNormal Normal vector to the point (already point - center of sphere)
 	 * @param lightPos The Eye space position of the light source.
 	 * @param Kd The diffuse color coefficient of the material.
 	 * @param Ks The specular color coefficient of the material.
@@ -271,9 +286,23 @@ public class WorldModel {
 	 * @return The calculated lighting as a Vector3f representing color. */	
 	static Vector3f lightingEquation(Vector3f point, Vector3f PointNormal, Vector3f LightPos, Vector3f Kd,
 			Vector3f Ks, Vector3f Ka, float shininess) {
-
-		Vector3f returnedColor = new Vector3f();
-
+		Vector3f lightDir = LightPos.sub(point).normalize();
+		float angleNormalToLight = Math.max(0, PointNormal.dot(lightDir));
+		Vector3f returnedColor = new Vector3f(Kd).mul(angleNormalToLight);
+		
+		Vector3f ambientColor = Ka;
+		returnedColor.add(ambientColor);
+		
+		float lightNormalCos = lightDir.dot(PointNormal);
+		Vector3f R = new Vector3f(0,0,0);
+		if(lightNormalCos >= 0) {
+				R = new Vector3f(PointNormal).mul(2*lightNormalCos).sub(lightDir).normalize();
+		}
+		
+		Vector3f eyeVector = new Vector3f(0,0,0).sub(point).normalize();
+		float angleShininess = (float)Math.pow((double)eyeVector.dot(R), (double)shininess);
+		Vector3f specularColor = new Vector3f(Ks.mul(Math.max(0, angleShininess)));
+		returnedColor.add(specularColor);
 		return returnedColor;
 	}
 
@@ -296,8 +325,11 @@ public class WorldModel {
 			SphereTexture intersectedSphereTexture,
 			Vector3f intersectedSphereKd,
 			float kTexture) {
-
-		return null;
+		Vector3f centerToIntersectionDir = new Vector3f(intersectionPoint).sub(intersectedSphereCenter);
+		Vector3f textureColor = new Vector3f(intersectedSphereTexture.sampleDirectionFromMiddle(centerToIntersectionDir));
+		textureColor.mul(kTexture);
+		Vector3f Kdiffuse_texture = new Vector3f(intersectedSphereKd).mul(1-kTexture).add(textureColor);
+		return Kdiffuse_texture;
 	}	
 
 

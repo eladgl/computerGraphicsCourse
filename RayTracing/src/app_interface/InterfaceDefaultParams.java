@@ -14,7 +14,7 @@ class InterfaceDefaultParams {
 	static final int IMAGE_HEIGHT = 600;
 	static final int IMAGE_UPDATE_INTERVAL_IN_MS = 30;
 	static final int LABELS_UPDATE_INTERVAL_IN_MS = 250;
-	static final int SIZE_OF_UPPER_INTERFACE_ROW_IN_PIXELS = 80;
+	static final int SIZE_OF_UPPER_INTERFACE_ROW_IN_PIXELS = 40;
 
 	//Unsaved parameters - parameters that start with their default value and can change 
     //  during program execution but are not saved between runs.
