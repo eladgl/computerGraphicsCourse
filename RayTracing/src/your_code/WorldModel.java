@@ -131,38 +131,46 @@ public class WorldModel {
 			SphereTexture skyBoxImageSphereTexture, int depthLevel) {
 		
 		IntersectionResults intersectionResults = rayIntersection(incidentRayOrigin, incidentRayDirection, model.spheres);
-		Vector3f returnedColor = new Vector3f(skyBoxImageSphereTexture.sampleDirectionFromMiddle(incidentRayDirection));
-
+		
 		if(intersectionResults == null)
-			return returnedColor;
+			return skyBoxImageSphereTexture.sampleDirectionFromMiddle(incidentRayDirection);
 		
+		Vector3f returnedColor = new Vector3f(0.0F);
 		ModelSphere intersectedSphere = intersectionResults.intersectedSphere;
-		int materialIndex = intersectedSphere.materialIndex;
-		int textureIndex = intersectedSphere.textureIndex;
-		ModelMaterial intersectedSphereMaterial = model.materials.get(materialIndex);
-		Vector3f intersectionPoint = intersectionResults.intersectionPoint;
-		Vector3f intersectionNormal = intersectionResults.normal;
-		boolean intersectionFromOutsideOfSphere = intersectionResults.rayFromOutsideOfSphere;
-		SphereTexture intersectedSphereTexture = model.skyBoxImageSphereTextures.get(textureIndex);
+	    ModelMaterial intersectedSphereMaterial = model.materials.get(intersectedSphere.materialIndex);
+	    Vector3f intersectionPoint = intersectionResults.intersectionPoint;
+	    Vector3f intersectionNormal = intersectionResults.normal;
+	    boolean intersectionFromOutsideOfSphere = intersectionResults.rayFromOutsideOfSphere;
+	    SphereTexture intersectedSphereTexture = model.skyBoxImageSphereTextures.get(intersectedSphere.textureIndex);
 		
-		
-		Vector3f color = intersectedSphereMaterial.color;
+		Vector3f color = new Vector3f(intersectedSphereMaterial.color);
 		float kColor = intersectedSphereMaterial.kColor;
-		returnedColor = new Vector3f(color).mul(kColor);
+		color.mul(kColor);
+		returnedColor.add(color);
+		
 		ModelLight light = model.lights.get(0);
-		Vector3f location = new Vector3f(light.location);
+		Vector3f lightLocation = new Vector3f(light.location);
+		
 		Vector3f kd = new Vector3f(intersectedSphereMaterial.kd);
 		Vector3f ks = new Vector3f(intersectedSphereMaterial.ks);
 		Vector3f ka = new Vector3f(intersectedSphereMaterial.ka);
+		float kDirect = intersectedSphereMaterial.kDirect;
+		
+		boolean isIntersectionPointInShadow = isPointInShadow(lightLocation, intersectionPoint, intersectionNormal, model);
+		
+		if(isIntersectionPointInShadow) {
+			return new Vector3f(ka);
+		}
+		
 		float shininess = intersectedSphereMaterial.shininess;
 		float kTexture = intersectedSphereMaterial.kTexture;
+		
 		Vector3f sphereCenter = intersectedSphere.center;
 		Vector3f newK_diffuse = calcKdCombinedWithTexture(intersectionPoint, sphereCenter, intersectedSphereTexture, kd, kTexture);
-		Vector3f diffusedColor = lightingEquation(intersectionPoint, intersectionNormal, location, newK_diffuse, ks, ka, shininess);
+		Vector3f diffusedColor = lightingEquation(intersectionPoint, intersectionNormal, lightLocation, newK_diffuse, ks, ka, shininess).mul(kDirect);
 		
-		
-		
-		return new Vector3f(returnedColor.add(diffusedColor));
+		returnedColor = new Vector3f(color).mul(kColor).add(diffusedColor);
+		return returnedColor;
 	}
 
 	
@@ -352,7 +360,12 @@ public class WorldModel {
 			Vector3f pointNormal,
 			Model model) {
 				
-		return false;
+		Vector3f lightPointDir = (new Vector3f(lightLocation).sub(point)).normalize();
+		Vector3f normalOffset = new Vector3f(pointNormal).mul(0.01f);
+		Vector3f closePoint = new Vector3f(point).add(normalOffset);
+
+		IntersectionResults intersectionResults = rayIntersection(closePoint, lightPointDir, model.spheres);
+		return intersectionResults != null;
 	}	
 
 	

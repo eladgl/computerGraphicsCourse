@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <parameters>
-    <modelFileName>.\Models\ex_05___OneSphere_texture_and_direct_light.model</modelFileName>
+    <modelFileName>.\Models\ex_06___OneSphereWithGround.model</modelFileName>
     <saveImagePath>./</saveImagePath>
     <depthOfRayTracing>1</depthOfRayTracing>
-    <exercise>EX_5___Texture</exercise>
+    <exercise>EX_6___Shadow</exercise>
 </parameters>
