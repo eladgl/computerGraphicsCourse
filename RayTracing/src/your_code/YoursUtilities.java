@@ -17,11 +17,11 @@ public class YoursUtilities {
      *
      * @param incidentRay_                        The direction of the incoming ray represented as a {@link Vector3f}.
      * @param normal_                             The normal vector at the surface point, represented as a {@link Vector3f}.
-     * @param refractiveIndexIntersectedSphere  The refractive index of the medium that the ray is entering or leaving.
-     * @param rayFromOutside                     A boolean indicating whether the ray is originating from outside the medium (true) 
+     * @param refractiveIndexIntersectedSphere    The refractive index of the medium that the ray is entering or leaving.
+     * @param rayFromOutside                      A boolean indicating whether the ray is originating from outside the medium (true) 
      *                                            or from inside the medium (false).
-     * @return                                   A normalized {@link Vector3f} representing the direction of the transmitted ray.
-     *                                           Returns a zero vector if total internal reflection occurs.
+     * @return                                    A normalized {@link Vector3f} representing the direction of the transmitted ray.
+     *                                            Returns a zero vector if total internal reflection occurs.
      */	
 	static Vector3f calcTransmissionRay(Vector3f incidentRay, Vector3f normal,
 			float refractiveIndexIntersectedSphere, boolean rayFromOutside) {
