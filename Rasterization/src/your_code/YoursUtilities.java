@@ -47,7 +47,6 @@ public class YoursUtilities {
        	else
        	    Utilities.saveIntBufferAsCSV(intBufferWrapper.getIntBuffer(), imageWidth, imageHeight, filename);
     }
-    
 }
 
 
