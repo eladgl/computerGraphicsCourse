@@ -66,7 +66,7 @@ public class BarycentricCoordinates {
 		return String.format("Alpha:%.2f, Beta:%.2f, Gamma:%.2f.",getAlpha(),getBeta(), getGamma());
 	}
 
-	//helper methods - method to compute line cooficient from 2 points
+	//helper methods - method to compute line coefficient from 2 points
 	private static Vector3f lineFrom2Points(Vector3f p1, Vector3f p2) {
 		return new Vector3f(p2.y - p1.y, -(p2.x - p1.x), p1.y * p2.x - p1.x * p2.y);
 	}
@@ -95,9 +95,14 @@ public class BarycentricCoordinates {
 
 	
 	public static void main(String[] args) {
-		
-
-	
+		Vector3f v1 = new Vector3f(7.0F, 4.0F, 0);
+		Vector3f v2 = new Vector3f(10.0F, 3.0F, 0);
+		Vector3f v3 = new Vector3f(5.0F, 1.0F, 0);
+		Vector3f point = new Vector3f(7.0F, 2.0F, 0);
+		BarycentricCoordinates Bcords = new BarycentricCoordinates(v1, v2, v3);
+		Bcords.calcCoordinatesForPoint(v3.get(0), v3.get(1));
+		System.out.println(Bcords);
+	    System.out.println(Bcords.isPointInside());
 	}
 	
 
