@@ -177,8 +177,38 @@ public class ObjectModel {
 			drawLineDDA(intBufferWrapper, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates, 1f, 1f, 1f);
 
 		} else {
-
-
+			BarycentricCoordinates baycentricCoordinates = new BarycentricCoordinates(vertex1.pointEyeCoordinates, vertex2.pointEyeCoordinates, vertex3.pointEyeCoordinates);
+			Vector4i boundingBox = calcBoundingBox(vertex1.pointWindowCoordinates, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates, imageWidth, imageHeight);
+			for (int x = boundingBox.get(0); x <= boundingBox.get(1); x++) {
+				for( int y = boundingBox.get(2); y <= boundingBox.get(3); y++) {
+					baycentricCoordinates.calcCoordinatesForPoint(x, y);
+					if (baycentricCoordinates.isPointInside()) {
+						FragmentData fragmentData = new FragmentData(); 
+						if (worldModel.displayType == DisplayTypeEnum.FACE_COLOR) { 
+							fragmentData.pixelColor = faceColor; 
+						} 
+						else if (worldModel.displayType == DisplayTypeEnum.INTERPOlATED_VERTEX_COLOR) { 
+							
+						} 
+						else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_FLAT) { 
+							
+						} 
+						else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_GOURARD) { 
+							
+						} 
+						else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_PHONG) { 
+						} 
+						else if (worldModel.displayType == DisplayTypeEnum.TEXTURE) { 
+							
+						} 
+						else if (worldModel.displayType == DisplayTypeEnum.TEXTURE_LIGHTING) { 
+							
+						} 
+						Vector3f pixelColor = fragmentProcessing(fragmentData); 
+						intBufferWrapper.setPixel((int)x, (int)y, pixelColor); 
+					}
+				}
+			}
 		}
 		
 	}
@@ -187,6 +217,7 @@ public class ObjectModel {
 	private Vector3f fragmentProcessing(FragmentData fragmentData) {
 		
 		if (worldModel.displayType == DisplayTypeEnum.FACE_COLOR) {
+			return fragmentData.pixelColor;
 		} else if (worldModel.displayType == DisplayTypeEnum.INTERPOlATED_VERTEX_COLOR) {
 		} else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_FLAT) {
 		} else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_GOURARD) {
@@ -243,9 +274,23 @@ public class ObjectModel {
 
 
 	static Vector4i calcBoundingBox(Vector3f p1, Vector3f p2, Vector3f p3, int imageWidth, int imageHeight) { 
-
-		return new Vector4i();
-
+		int minX = (int)Math.floor(Math.max(0, 
+				Math.min(p1.x, 
+						Math.min(p2.x,p3.x))
+				));
+		int minY = (int)Math.floor(Math.max(0, 
+				Math.min(p1.y, 
+						Math.min(p2.y,p3.y))
+				));
+		int maxX = (int)Math.ceil(Math.min(imageWidth - 1, 
+				Math.max(p1.x,
+						Math.max(p2.x,  p3.x))
+				));
+		int maxY = (int)Math.ceil(Math.min(imageWidth - 1, 
+				Math.max(p1.y,
+						Math.max(p2.y,  p3.y))
+				));
+		return new Vector4i(minX, maxX, minY, maxY);
 	}
 
 	
