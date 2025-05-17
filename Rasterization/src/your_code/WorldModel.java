@@ -112,10 +112,11 @@ public class WorldModel {
 
 
 			if(projectionType==ProjectionTypeEnum.ORTHOGRAPHIC) {
-
-
+				Matrix4f projectionMatrix = (new Matrix4f()).ortho(-1.5F, 1.5F, -1.5F, 1.5F, 0.0F, 100.0F);
+				object1.setProjectionM(projectionMatrix);
 			}
 
+			object1.setViewportM(YoursUtilities.createViewportMatrix(0.0F, 0.0F, imageWidth, imageHeight));
 			
 			if(projectionType==ProjectionTypeEnum.PERSPECTIVE) {
 
