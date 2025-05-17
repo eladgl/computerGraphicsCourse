@@ -123,10 +123,14 @@ public class ObjectModel {
 	
 			// Transform only model transformation
 			modelM.transform(t);
+			lookatM.transform(t);
 			vertex.pointEyeCoordinates = new Vector3f(t.x, t.y, t.z);
-			
+			projectionM.transform(t);
+			if (t.w != 0f) {
+		        t.mul(1.0f / t.w);
+		    }
+			viewportM.transform(t);
 			vertex.pointWindowCoordinates = new Vector3f(t.x, t.y, t.z);
-
 
 		// transformation normal from object coordinates to eye coordinates v->normal
 		///////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +181,7 @@ public class ObjectModel {
 			drawLineDDA(intBufferWrapper, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates, 1f, 1f, 1f);
 
 		} else {
-			BarycentricCoordinates baycentricCoordinates = new BarycentricCoordinates(vertex1.pointEyeCoordinates, vertex2.pointEyeCoordinates, vertex3.pointEyeCoordinates);
+			BarycentricCoordinates baycentricCoordinates = new BarycentricCoordinates(vertex1.pointWindowCoordinates, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates);
 			Vector4i boundingBox = calcBoundingBox(vertex1.pointWindowCoordinates, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates, imageWidth, imageHeight);
 			for (int x = boundingBox.get(0); x <= boundingBox.get(1); x++) {
 				for( int y = boundingBox.get(2); y <= boundingBox.get(3); y++) {
