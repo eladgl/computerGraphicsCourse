@@ -60,7 +60,7 @@ public class Main extends Application {
 	private InterfaceSavedParams savedParams = new InterfaceSavedParams();
 	
 	// error logger
-    private final ErrorLogger errorLogger = new ErrorLogger();
+    private final ErrorLogger errorLogger = ErrorLogger.getInstance();
 	private StringProperty labelOpenLogProperty = new SimpleStringProperty("");
 	
 	// The 3D model class that handles rendering
@@ -615,7 +615,7 @@ public class Main extends Application {
     }
     
 	private void handleOpenLog(ActionEvent event) {
-      	errorLogger.showErrorWindow();
+      	errorLogger.showErrorWindowFx();
 	}
 	
     //methods for setting parameters of model rendering
