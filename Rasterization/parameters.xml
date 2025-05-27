@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <parameters>
-    <modelFileName>C:\Users\eladg\Desktop\מסמכים\לימודים\סמסטר ט\Computer Graphics Course\GraphicsWorkspace\computerGraphicsCourse\Rasterization\Models\models_0to600\ex_01___sphere_0to600.obj</modelFileName>
+    <modelFileName>C:\Users\eladg\Desktop\מסמכים\לימודים\סמסטר ט\Computer Graphics Course\GraphicsWorkspace\computerGraphicsCourse\Rasterization\Models\models_without_textures\pumpkin.obj</modelFileName>
     <saveImagePath>./Models/</saveImagePath>
-    <projectionType>ORTHOGRAPHIC</projectionType>
+    <projectionType>PERSPECTIVE</projectionType>
     <displayType>FACE_COLOR</displayType>
     <displayNormals>false</displayNormals>
-    <exercise>EX_3_2_Object_transformation___scale</exercise>
+    <exercise>EX_4___Orthograpic_projection_and_viewport</exercise>
 </parameters>
