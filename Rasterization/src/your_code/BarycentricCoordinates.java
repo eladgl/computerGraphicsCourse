@@ -103,6 +103,20 @@ public class BarycentricCoordinates {
 		Bcords.calcCoordinatesForPoint(v3.get(0), v3.get(1));
 		System.out.println(Bcords);
 	    System.out.println(Bcords.isPointInside());
+	    
+	    Vector3f p1 = new Vector3f(5.0F, 10.0F,0.0F);
+	    Vector3f p2 = new Vector3f(10.0F, 0.0F,0.0F);
+	    Vector3f p3 = new Vector3f(0.0F, 0.0F,0.0F);
+	    Vector3f testPoint1 = new Vector3f(5, 0,0);
+	    Vector3f testPoint2 = new Vector3f(5, 5,0);
+	    
+	    BarycentricCoordinates Bcords1 = new BarycentricCoordinates(p1, p2, p3);
+	    Bcords1.calcCoordinatesForPoint(5.0F, 0.0F);
+	    System.out.println(Bcords1);
+		System.out.println(Bcords1.interpolate(10.0F, 30.0F, 60.0F));
+		Bcords1.calcCoordinatesForPoint(5.0F, 5.0F);
+	    System.out.println(Bcords1);
+	    System.out.println(Bcords1.interpolate(10.0F, 30.0F, 60.0F));
 	}
 	
 

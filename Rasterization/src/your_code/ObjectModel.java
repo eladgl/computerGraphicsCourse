@@ -192,7 +192,7 @@ public class ObjectModel {
 							fragmentData.pixelColor = faceColor; 
 						} 
 						else if (worldModel.displayType == DisplayTypeEnum.INTERPOlATED_VERTEX_COLOR) { 
-							
+							fragmentData.pixelColor = baycentricCoordinates.interpolate(vertex1.color, vertex2.color, vertex3.color);
 						} 
 						else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_FLAT) { 
 							
@@ -223,6 +223,7 @@ public class ObjectModel {
 		if (worldModel.displayType == DisplayTypeEnum.FACE_COLOR) {
 			return fragmentData.pixelColor;
 		} else if (worldModel.displayType == DisplayTypeEnum.INTERPOlATED_VERTEX_COLOR) {
+			return fragmentData.pixelColor;
 		} else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_FLAT) {
 		} else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_GOURARD) {
 		} else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_PHONG) {

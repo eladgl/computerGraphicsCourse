@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <parameters>
-    <modelFileName>C:\Users\eladg\Desktop\מסמכים\לימודים\סמסטר ט\Computer Graphics Course\GraphicsWorkspace\computerGraphicsCourse\Rasterization\Models\models_without_textures\pumpkin.obj</modelFileName>
+    <modelFileName>C:\Users\eladg\Desktop\מסמכים\לימודים\סמסטר ט\Computer Graphics Course\GraphicsWorkspace\computerGraphicsCourse\Rasterization\Models\models_without_textures\triangle1.obj</modelFileName>
     <saveImagePath>./Models/</saveImagePath>
     <projectionType>PERSPECTIVE</projectionType>
-    <displayType>FACE_COLOR</displayType>
+    <displayType>INTERPOlATED_VERTEX_COLOR</displayType>
     <displayNormals>false</displayNormals>
-    <exercise>EX_4___Orthograpic_projection_and_viewport</exercise>
+    <exercise>EX_7___Vertex_color_interpolation</exercise>
 </parameters>
