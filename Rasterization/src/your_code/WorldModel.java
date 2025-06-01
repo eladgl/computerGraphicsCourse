@@ -117,11 +117,18 @@ public class WorldModel {
 			}
 
 			object1.setViewportM(YoursUtilities.createViewportMatrix(0.0F, 0.0F, imageWidth, imageHeight));
+			Matrix4f lookatM = (new Matrix4f()).lookAt(cameraPos, cameraLookAtCenter, cameraUp);
+		    object1.setLookatM(lookatM);
 			
 			if(projectionType==ProjectionTypeEnum.PERSPECTIVE) {
-
-
+				float fovY = (float) Math.toRadians(30.0F);
+			    float aspectRatio = (float) imageWidth / (float) imageHeight;
+			    float zNear = 1.0F;
+			    float zFar = 100.0F;
+			    Matrix4f perspectiveMatrix = (new Matrix4f()).perspective(fovY, aspectRatio, zNear, zFar);
+			    object1.setProjectionM(perspectiveMatrix);
 			}
+			
 			
 		
 		object1.render(intBufferWrapper);
