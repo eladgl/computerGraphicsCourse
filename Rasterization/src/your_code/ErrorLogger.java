@@ -1,116 +1,217 @@
 package your_code;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import javax.swing.*;
+
+/**
+ * Singleton class for logging error messages in an application.
+ * <p>
+ * Errors are recorded with their message, count of occurrences,
+ * and location (class, method, file, and line number) of the first
+ * and last occurrence.
+ * <p>
+ * This logger can display the error summary in either a JavaFX or
+ * Swing-based window. It is useful for debugging or monitoring
+ * errors during development and runtime.
+ *
+ * <h2>Example Usage:</h2>
+ * <pre>{@code
+ * ErrorLogger logger = ErrorLogger.getInstance();
+ * logger.report("File not found.");
+ * logger.report("File not found.");
+ * logger.report("Null pointer exception.");
+ * System.out.println(logger); // Print report to console
+ *
+ * logger.showErrorWindowSwing(); // Show report in Swing window
+ * // or
+ * logger.showErrorWindowFx(); // Show report in JavaFX window
+ * }</pre>
+ */
 public class ErrorLogger {
-    public enum ErrorType {
-        EXAMPLE_ERROR_1("One example of error that can happen."),
-        EXAMPLE_ERROR_2("Second example of error that can happen.");
+    // Singleton instance
+    private static final ErrorLogger instance = new ErrorLogger();
 
-        private final String description;
-        private String firstOccurrence;
-        private String lastOccurrence;
+    /**
+     * Inner class that stores information about a specific error.
+     */
+    private static class ErrorInfo {
+        String description;
+        int count = 0;
+        String firstOccurrence = "";
+        String lastOccurrence = "";
 
-        ErrorType(String description) {
+        ErrorInfo(String description, String location) {
             this.description = description;
-            this.firstOccurrence = "";
-            this.lastOccurrence = "";
+            this.count = 1;
+            this.firstOccurrence = location;
+            this.lastOccurrence = location;
         }
 
-        public String getDescription() {
-            return description;
-        }
-
-        public String getFirstOccurrence() {
-            return firstOccurrence;
-        }
-
-        public String getLastOccurrence() {
-            return lastOccurrence;
-        }
-
-        public void setFirstOccurrence(String firstOccurrence) {
-            this.firstOccurrence = firstOccurrence;
-        }
-
-        public void setLastOccurrence(String lastOccurrence) {
-            this.lastOccurrence = lastOccurrence;
+        /**
+         * Updates the last occurrence of the error and increments the count.
+         */
+        void updateOccurrence(String location) {
+            count++;
+            lastOccurrence = location;
         }
     }
 
-    private int[] errorCounts;
-    private int totalCount;
+    // Map to store unique errors with their info
+    private final Map<String, ErrorInfo> errorMap = new LinkedHashMap<>();
+    private int totalCount = 0;
 
-    public ErrorLogger() {
-        this.errorCounts = new int[ErrorType.values().length];
+    /**
+     * Private constructor to enforce singleton pattern.
+     */
+    private ErrorLogger() {}
+
+    /**
+     * Returns the singleton instance of the logger.
+     *
+     * @return singleton instance
+     */
+    public static ErrorLogger getInstance() {
+        return instance;
     }
 
-    public void report(ErrorType errorType) {
-    	totalCount++;
-        errorCounts[errorType.ordinal()]++;
-        String callerInfo = getCallerInfo();
+    /**
+     * Reports a new error message to the logger.
+     * Automatically records where the error was reported from.
+     *
+     * @param errorMessage the error message to report
+     */
+    public void report(String errorMessage) {
+        String location = getCallerInfo();
+        ErrorInfo info = errorMap.get(errorMessage);
 
-        if (errorCounts[errorType.ordinal()] == 1) {
-            errorType.setFirstOccurrence(callerInfo);
+        if (info == null) {
+            errorMap.put(errorMessage, new ErrorInfo(errorMessage, location));
+        } else {
+            info.updateOccurrence(location);
         }
 
-        errorType.setLastOccurrence(callerInfo);
+        totalCount++;
+        System.err.printf("ErrorLogger error reported:%n%s%nOccurred at: %s%n%n", errorMessage, location);
     }
 
+    /**
+     * Returns the location (class, method, file, line) where the `report()` method was called.
+     */
     private String getCallerInfo() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        StackTraceElement element = stackTrace[3];
-        return element.getFileName() + ":" + element.getLineNumber();
-    }
 
-    @Override
-    public String toString() {
-        StringBuilder report = new StringBuilder("Error Report:\n");
-        report.append("Total errors number: " + totalCount + "\n\n");
-
-        for (int i = 0; i < errorCounts.length; i++) {
-            if (errorCounts[i] > 0) {
-                ErrorType errorType = ErrorType.values()[i];
-                report.append(String.format("%s: %d occurrences - %s\n",
-                        errorType, errorCounts[i], errorType.getDescription()));
-                report.append(String.format("   First Occurrence: %s\n", errorType.getFirstOccurrence()));
-                report.append(String.format("   Last Occurrence: %s\n\n", errorType.getLastOccurrence()));
+        // Find the index of ErrorLogger.report() in the stack trace
+        int reportMethodIndex = -1;
+        for (int i = 0; i < stackTrace.length; i++) {
+            StackTraceElement element = stackTrace[i];
+            if (element.getClassName().equals(ErrorLogger.class.getName()) &&
+                element.getMethodName().equals("report")) {
+                reportMethodIndex = i;
+                break;
             }
         }
-        return report.toString();
+
+        // Get the caller of report() (should be at reportMethodIndex + 1)
+        if (reportMethodIndex >= 0 && reportMethodIndex + 1 < stackTrace.length) {
+            StackTraceElement caller = stackTrace[reportMethodIndex + 1];
+            return String.format("%s.%s(%s:%d)",
+                    caller.getClassName(),
+                    caller.getMethodName(),
+                    caller.getFileName(),
+                    caller.getLineNumber());
+        }
+
+        return "Unknown Source";
     }
 
+    /**
+     * Returns the total number of error reports received.
+     *
+     * @return total error count
+     */
     public int getTotalCount() {
-    	return totalCount;
-    }
-    
-    public void resetCounts() {
-    	totalCount = 0;
-        Arrays.fill(errorCounts, 0);
+        return totalCount;
     }
 
-    public void showErrorWindow() {
+    /**
+     * Resets the logger by clearing all error entries and counters.
+     */
+    public void resetCounts() {
+        totalCount = 0;
+        errorMap.clear();
+    }
+
+    /**
+     * Returns a human-readable summary of all logged errors.
+     *
+     * @return formatted error report string
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Error Report:\n");
+        sb.append("Total errors: ").append(totalCount).append("\n\n");
+
+        for (Map.Entry<String, ErrorInfo> entry : errorMap.entrySet()) {
+            ErrorInfo info = entry.getValue();
+            sb.append(String.format("Error: %s\n", info.description));
+            sb.append(String.format("  Count: %d\n", info.count));
+            sb.append(String.format("  First Occurrence: %s\n", info.firstOccurrence));
+            sb.append(String.format("  Last Occurrence: %s\n\n", info.lastOccurrence));
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Displays the error summary in a JavaFX window.
+     * Should be called from a JavaFX Application thread.
+     */
+    public void showErrorWindowFx() {
         Stage stage = new Stage();
         VBox layout = new VBox(10);
         Label errorLabel = new Label(toString());
- 
-        layout.getChildren().addAll(errorLabel);
+        layout.getChildren().add(errorLabel);
         Scene scene = new Scene(layout, 500, 600);
         stage.setScene(scene);
         stage.setTitle("Error Report");
         stage.show();
     }
 
+    /**
+     * Displays the error summary in a Swing window.
+     */
+    public void showErrorWindowSwing() {
+        JTextArea textArea = new JTextArea(toString());
+        textArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new java.awt.Dimension(500, 600));
+
+        JOptionPane.showMessageDialog(
+                null,
+                scrollPane,
+                "Error Report",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    /**
+     * Demonstrates the usage of the ErrorLogger.
+     * Uncomment JavaFX code to test in a JavaFX context.
+     *
+     * @param args not used
+     */
     public static void main(String[] args) {
-        ErrorLogger logger = new ErrorLogger();
-        logger.report(ErrorType.EXAMPLE_ERROR_1);
-        logger.report(ErrorType.EXAMPLE_ERROR_2);
-        logger.report(ErrorType.EXAMPLE_ERROR_1);
+        ErrorLogger logger = ErrorLogger.getInstance();
+        logger.report("Failed to load texture.");
+        logger.report("Failed to load texture.");
+        logger.report("Buffer overflow.");
         System.out.println(logger);
     }
 }
