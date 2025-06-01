@@ -181,18 +181,18 @@ public class ObjectModel {
 			drawLineDDA(intBufferWrapper, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates, 1f, 1f, 1f);
 
 		} else {
-			BarycentricCoordinates baycentricCoordinates = new BarycentricCoordinates(vertex1.pointWindowCoordinates, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates);
+			BarycentricCoordinates barycentricCoordinates = new BarycentricCoordinates(vertex1.pointWindowCoordinates, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates);
 			Vector4i boundingBox = calcBoundingBox(vertex1.pointWindowCoordinates, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates, imageWidth, imageHeight);
 			for (int x = boundingBox.get(0); x <= boundingBox.get(1); x++) {
 				for( int y = boundingBox.get(2); y <= boundingBox.get(3); y++) {
-					baycentricCoordinates.calcCoordinatesForPoint(x, y);
-					if (baycentricCoordinates.isPointInside()) {
+					barycentricCoordinates.calcCoordinatesForPoint(x, y);
+					if (barycentricCoordinates.isPointInside()) {
 						FragmentData fragmentData = new FragmentData(); 
 						if (worldModel.displayType == DisplayTypeEnum.FACE_COLOR) { 
 							fragmentData.pixelColor = faceColor; 
 						} 
 						else if (worldModel.displayType == DisplayTypeEnum.INTERPOlATED_VERTEX_COLOR) { 
-							fragmentData.pixelColor = baycentricCoordinates.interpolate(vertex1.color, vertex2.color, vertex3.color);
+							fragmentData.pixelColor = barycentricCoordinates.interpolate(vertex1.color, vertex2.color, vertex3.color);
 						} 
 						else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_FLAT) { 
 							
@@ -208,8 +208,15 @@ public class ObjectModel {
 						else if (worldModel.displayType == DisplayTypeEnum.TEXTURE_LIGHTING) { 
 							
 						} 
-						Vector3f pixelColor = fragmentProcessing(fragmentData); 
-						intBufferWrapper.setPixel((int)x, (int)y, pixelColor); 
+						float v1Z = vertex1.pointWindowCoordinates.z;
+						float v2Z = vertex2.pointWindowCoordinates.z;
+						float v3Z = vertex3.pointWindowCoordinates.z;
+						float z = barycentricCoordinates.interpolate(v1Z, v2Z, v3Z);
+						if(z < worldModel.zBuffer[y][x]) {
+							worldModel.zBuffer[y][x] = z;
+							Vector3f pixelColor = fragmentProcessing(fragmentData); 
+							intBufferWrapper.setPixel(x, y, pixelColor); 
+						}
 					}
 				}
 			}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <parameters>
-    <modelFileName>C:\Users\eladg\Desktop\מסמכים\לימודים\סמסטר ט\Computer Graphics Course\GraphicsWorkspace\computerGraphicsCourse\Rasterization\Models\models_without_textures\triangle1.obj</modelFileName>
+    <modelFileName>C:\Users\eladg\Desktop\מסמכים\לימודים\סמסטר ט\Computer Graphics Course\GraphicsWorkspace\computerGraphicsCourse\Rasterization\Models\models_without_textures\sphere.obj</modelFileName>
     <saveImagePath>./Models/</saveImagePath>
     <projectionType>PERSPECTIVE</projectionType>
     <displayType>INTERPOlATED_VERTEX_COLOR</displayType>
