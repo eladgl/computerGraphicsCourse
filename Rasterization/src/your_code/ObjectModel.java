@@ -172,9 +172,8 @@ public class ObjectModel {
 					.normalize();
 
 		if (worldModel.displayType == DisplayTypeEnum.FACE_EDGES) {
-			drawLineDDA(intBufferWrapper, vertex1.pointWindowCoordinates, vertex2.pointWindowCoordinates, 1f, 1f, 1f);
-			drawLineDDA(intBufferWrapper, vertex1.pointWindowCoordinates, vertex3.pointWindowCoordinates, 1f, 1f, 1f);
-			drawLineDDA(intBufferWrapper, vertex2.pointWindowCoordinates, vertex3.pointWindowCoordinates, 1f, 1f, 1f);
+			ContextObject ctx = new ContextObject(worldModel, intBufferWrapper, vertex1, vertex2, vertex3);
+			DisplayTypeManager.applyDisplay(ctx);
 
 		} else {
 			BarycentricCoordinates baycentricCoordinates = new BarycentricCoordinates(vertex1.pointEyeCoordinates, vertex2.pointEyeCoordinates, vertex3.pointEyeCoordinates);
@@ -183,27 +182,10 @@ public class ObjectModel {
 				for( int y = boundingBox.get(2); y <= boundingBox.get(3); y++) {
 					baycentricCoordinates.calcCoordinatesForPoint(x, y);
 					if (baycentricCoordinates.isPointInside()) {
-						FragmentData fragmentData = new FragmentData(); 
-						if (worldModel.displayType == DisplayTypeEnum.FACE_COLOR) { 
-							fragmentData.pixelColor = faceColor; 
-						} 
-						else if (worldModel.displayType == DisplayTypeEnum.INTERPOlATED_VERTEX_COLOR) { 
-							
-						} 
-						else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_FLAT) { 
-							
-						} 
-						else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_GOURARD) { 
-							
-						} 
-						else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_PHONG) { 
-						} 
-						else if (worldModel.displayType == DisplayTypeEnum.TEXTURE) { 
-							
-						} 
-						else if (worldModel.displayType == DisplayTypeEnum.TEXTURE_LIGHTING) { 
-							
-						} 
+						FragmentData fragmentData = new FragmentData();
+						ContextObject ctx = new ContextObject(fragmentData, worldModel, vertex1, vertex2, vertex3, baycentricCoordinates, faceColor);
+						DisplayTypeManager.applyDisplay(ctx);
+						
 						Vector3f pixelColor = fragmentProcessing(fragmentData); 
 						intBufferWrapper.setPixel((int)x, (int)y, pixelColor); 
 					}
