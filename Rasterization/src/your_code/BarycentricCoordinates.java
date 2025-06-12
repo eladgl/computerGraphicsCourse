@@ -100,7 +100,7 @@ public class BarycentricCoordinates {
 		Vector3f v3 = new Vector3f(5.0F, 1.0F, 0);
 		Vector3f point = new Vector3f(7.0F, 2.0F, 0);
 		BarycentricCoordinates Bcords = new BarycentricCoordinates(v1, v2, v3);
-		Bcords.calcCoordinatesForPoint(v3.get(0), v3.get(1));
+		Bcords.calcCoordinatesForPoint(point.get(0), point.get(1));
 		System.out.println(Bcords);
 	    System.out.println(Bcords.isPointInside());
 	}
