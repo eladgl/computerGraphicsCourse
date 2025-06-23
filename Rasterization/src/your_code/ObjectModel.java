@@ -99,7 +99,9 @@ public class ObjectModel {
 
 	public void render(IntBufferWrapper intBufferWrapper) { //render
 		exercise = worldModel.exercise;
-
+		 Vector4f t1 = new Vector4f(worldModel.lightPositionWorldCoordinates, 1.0F);
+	      this.lookatM.transform(t1);
+	      this.lightPositionEyeCoordinates = new Vector3f(t1.x, t1.y, t1.z);
 		
 		if (verticesData != null) {
 			for (VertexData vertexData : verticesData) {
@@ -116,8 +118,7 @@ public class ObjectModel {
 	}
 
 	private void vertexProcessing(IntBufferWrapper intBufferWrapper, VertexData vertex) {
-
-
+		
 			// Initialize a 4D vector from the 3D vertex point
 			Vector4f t = new Vector4f(vertex.pointObjectCoordinates, 1f);
 	
@@ -135,8 +136,13 @@ public class ObjectModel {
 		// transformation normal from object coordinates to eye coordinates v->normal
 		///////////////////////////////////////////////////////////////////////////////////
 		transformNormalFromObjectCoordToEyeCoordAndDrawIt(intBufferWrapper, vertex);
-
-
+		vertex.lightingIntensity0to1 = lightingEquation(vertex.pointEyeCoordinates, 
+				vertex.normalEyeCoordinates, 
+		          lightPositionEyeCoordinates, 
+		          worldModel.lighting_Diffuse, 
+		          worldModel.lighting_Specular, 
+		          worldModel.lighting_Ambient, 
+		          worldModel.lighting_sHininess);
 	}
 
 	private void transformNormalFromObjectCoordToEyeCoordAndDrawIt(IntBufferWrapper intBufferWrapper, VertexData vertex) {
@@ -207,14 +213,49 @@ public class ObjectModel {
 		if (worldModel.displayType == DisplayTypeEnum.FACE_COLOR) {
 			return fragmentData.pixelColor;
 		} else if (worldModel.displayType == DisplayTypeEnum.INTERPOlATED_VERTEX_COLOR) {
+			return fragmentData.pixelColor;
 		} else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_FLAT) {
+			return new Vector3f(fragmentData.pixelIntensity0to1);
 		} else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_GOURARD) {
+			return new Vector3f(fragmentData.pixelIntensity0to1);
 		} else if (worldModel.displayType == DisplayTypeEnum.LIGHTING_PHONG) {
+			float intensity = lightingEquation(
+					fragmentData.pointEyeCoordinates,
+					fragmentData.normalEyeCoordinates,
+					worldModel.lightPositionWorldCoordinates,
+					worldModel.lighting_Diffuse,
+					worldModel.lighting_Specular,
+					worldModel.lighting_Ambient,
+					worldModel.lighting_sHininess
+			);
+			return new Vector3f(intensity, intensity, intensity);
 		} else if (worldModel.displayType == DisplayTypeEnum.TEXTURE) {
+			Vector2f texCoords = fragmentData.textureCoordinates;
+			int texWidth = textureImageIntBufferWrapper.getImageWidth();
+				int texHeight = textureImageIntBufferWrapper.getImageHeight();
+				int texX = (int) (texCoords.x * (texWidth - 1));
+				int texY = (int) ((texCoords.y) * (texHeight - 1));
+				return textureImageIntBufferWrapper.getPixel(texX, texY);
 		} else if (worldModel.displayType == DisplayTypeEnum.TEXTURE_LIGHTING) {
+			float intensity = lightingEquation(
+					fragmentData.pointEyeCoordinates,
+					fragmentData.normalEyeCoordinates,
+					worldModel.lightPositionWorldCoordinates,
+					worldModel.lighting_Diffuse,
+					worldModel.lighting_Specular,
+					worldModel.lighting_Ambient,
+					worldModel.lighting_sHininess
+			);
+			Vector3f light= new Vector3f(intensity, intensity, intensity);
+			Vector2f texCoords = fragmentData.textureCoordinates;
+			int texWidth = textureImageIntBufferWrapper.getImageWidth();
+				int texHeight = textureImageIntBufferWrapper.getImageHeight();
+				int texX = (int) (texCoords.x * (texWidth - 1));
+				int texY = (int) ((texCoords.y) * (texHeight - 1));
+				Vector3f textPixel= textureImageIntBufferWrapper.getPixel(texX, texY);
+				return textPixel.mul(light);
 		}
 		return new Vector3f();
-		
 	}
 
 	
@@ -292,10 +333,24 @@ public class ObjectModel {
 	
 	private static Vector3f lightingEquation(Vector3f point, Vector3f PointNormal, Vector3f LightPos, Vector3f Kd,
 			Vector3f Ks, Vector3f Ka, float shininess) {
-
-		Vector3f returnedColor = new Vector3f();
-
-
+		
+		Vector3f lightDir = LightPos.sub(point).normalize();
+		float angleNormalToLight = Math.max(0, PointNormal.dot(lightDir));
+		Vector3f returnedColor = new Vector3f(Kd).mul(angleNormalToLight);
+		
+		Vector3f ambientColor = Ka;
+		returnedColor.add(ambientColor);
+		
+		float lightNormalCos = lightDir.dot(PointNormal);
+		Vector3f R = new Vector3f(0,0,0);
+		if(lightNormalCos >= 0) {
+				R = new Vector3f(PointNormal).mul(2*lightNormalCos).sub(lightDir).normalize();
+		}
+		
+		Vector3f eyeVector = new Vector3f(0,0,0).sub(point).normalize();
+		float angleShininess = (float)Math.pow((double)eyeVector.dot(R), (double)shininess);
+		Vector3f specularColor = new Vector3f(Ks.mul(Math.max(0, angleShininess)));
+		returnedColor.add(specularColor);
 		return returnedColor;
 	}	
 }
