@@ -173,7 +173,6 @@ public class ObjectModel {
 
 		if (worldModel.displayType == DisplayTypeEnum.FACE_EDGES) {
 			ContextObject ctx = new ContextObject(worldModel, intBufferWrapper, vertex1, vertex2, vertex3);
-			System.out.println(ctx);
 			DisplayTypeManager.applyDisplay(ctx);
 
 		} else {
@@ -189,7 +188,6 @@ public class ObjectModel {
 						FragmentData fragmentData = new FragmentData();
 						ContextObject ctx = new ContextObject(fragmentData, worldModel, vertex1, vertex2, vertex3, baycentricCoordinates, faceColor);
 						DisplayTypeManager.applyDisplay(ctx);
-						System.out.print(ctx);
 						
 						Vector3f pixelColor = fragmentProcessing(fragmentData); 
 						intBufferWrapper.setPixel((int)x, (int)y, pixelColor); 
