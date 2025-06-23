@@ -61,6 +61,8 @@ public class UnitTests {
 	 * @return a {@code Vector4i} representing the clamped bounding box (minX, maxX, minY, maxY)
 	 */
     private static void testCalcBoundingBox() {
+    	ErrorLogger logger = ErrorLogger.getInstance();
+    	
         Vector3f p1 = new Vector3f(1.5f, 6.3f, 0.0f);
         Vector3f p2 = new Vector3f(4.8f, 7.7f, 0.0f);
         Vector3f p3 = new Vector3f(2.1f, 5.1f, 0.0f);
@@ -100,6 +102,7 @@ public class UnitTests {
             System.out.println("testCalcBoundingBox 3 (collinear) passed.");
         } else {
             System.out.println("testCalcBoundingBox 3 (collinear) failed. Result: " + boundingBox + ", Expected: " + expected);
+            logger.report(ErrorType.BOUNDING_BOX_INCORRECT_ORDER);
         }
         
         
@@ -117,6 +120,7 @@ public class UnitTests {
             System.out.println("testCalcBoundingBox 4 (field order check) passed.");
         } else {
             System.out.println("testCalcBoundingBox 4 (field order check) failed. Result: " + boundingBox + ", Expected: " + expected);
+            logger.report(ErrorType.BOUNDING_BOX_COLLINEAR_FAILED);
         }
 
 

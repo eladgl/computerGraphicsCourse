@@ -214,4 +214,8 @@ public class ErrorLogger {
         logger.report("Buffer overflow.");
         System.out.println(logger);
     }
+    
+    public void report(ErrorType errorType) {
+        report(errorType.getMessage());
+    }
 }
